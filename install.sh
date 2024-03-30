@@ -1,5 +1,18 @@
 #!/bin/bash
 
+#upgrade
+ crew --version  && {
+ CREW_REPO=https://github.com/ChromebrewPlus/ChromebrewPlus.git CREW_BRANCH=master crew update 
+ yes | crew upgrade
+ echo "  ___ _                               _
+ / (_)|\                              |\\
+|     ||__    ,_    __  _  _  _    __ |/_  ,_    __  _   _   _      |
+|     |/  |  /  |  /  \/ |/ |/ |  |_/ |  \/  |  |_/ /|   |   |\_ ---|---
+ \___/|   |_/   |_/\__/  |  |  |_/|__/\__/   |_/|__/  \_/ \_/       |
+"
+ exit
+} 
+
 # Exit on fail.
 set -e
 
@@ -106,8 +119,8 @@ fi
 # instruction, as it was first introduced in Bulldozer and later dropped in Zen.
 if grep -s "fma4" /proc/cpuinfo ; then
   echo_info "Notice: You are running an AMD StoneyRidge device; due to some bugs some packages may fail with a segmentation fault and need to be rebuilt."
-  echo_info "If this happens, please report them to: https://github.com/chromebrew/chromebrew/issues"
-  echo_info "If the install fails, try running 'CREW_AMD_INSTALL=1 exec bash --init-file <(curl -Ls git.io/vddgY)'"
+  echo_info "If this happens, please report them to: https://github.com/ChromebrewPlus/ChromebrewPlus/issues"
+  echo_info "If the install fails, try running 'CREW_AMD_INSTALL=1'+ the command you used to run this"
   if [ "${CREW_AMD_INSTALL}" == "1" ]; then
     # Otherwise one may get segfaults during install on stoneyridge devices.
     # See https://github.com/chromebrew/chromebrew/issues/8823
@@ -115,7 +128,7 @@ if grep -s "fma4" /proc/cpuinfo ; then
   fi
 fi
 
-echo_success "Welcome to Chromebrew!"
+echo_success "Welcome to Chromebrew+!"
 
 # Prompt user to enter the sudo password if it is set.
 # If the PASSWD_FILE specified by chromeos-setdevpasswd exist, that means a sudo password is set.
@@ -356,9 +369,9 @@ echo "                       . .
                 .....'cc:cc:''..."
 echo "  ___ _                               _
  / (_)|\                              |\\
-|     ||__    ,_    __  _  _  _    __ |/_  ,_    __  _   _   _
-|     |/  |  /  |  /  \/ |/ |/ |  |_/ |  \/  |  |_/ /|   |   |\_
- \___/|   |_/   |_/\__/  |  |  |_/|__/\__/   |_/|__/  \_/ \_/
+|     ||__    ,_    __  _  _  _    __ |/_  ,_    __  _   _   _      |
+|     |/  |  /  |  /  \/ |/ |/ |  |_/ |  \/  |  |_/ /|   |   |\_ ---|---
+ \___/|   |_/   |_/\__/  |  |  |_/|__/\__/   |_/|__/  \_/ \_/       |
 "
 
 echo_info "Please run 'source ~/.bashrc' to set up the profile environment."
