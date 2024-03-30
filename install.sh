@@ -86,8 +86,8 @@ if [ "$(stat -c '%u' "${CREW_PREFIX}")" != "$(id -u)" ]; then
 fi
 
 # Default chromebrew repo values.
-: "${OWNER:=chromebrew}"
-: "${REPO:=chromebrew}"
+: "${OWNER:=ChromebrewPlus}"
+: "${REPO:=ChromebrewPlus}"
 : "${BRANCH:=master}"
 
 # Chromebrew directories.
