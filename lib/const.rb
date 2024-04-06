@@ -1,7 +1,7 @@
 # lib/const.rb
 # Defines common constants used in different parts of crew
 
-CREW_VERSION = '1.46.0'
+CREW_VERSION = '1.46.5'
 
 # kernel architecture
 KERN_ARCH = `uname -m`.chomp
@@ -307,10 +307,6 @@ PY_SETUP_INSTALL_OPTIONS         = "#{PY_SETUP_INSTALL_OPTIONS_NO_SVEM} --single
 PY3_BUILD_OPTIONS                = '--wheel --no-isolation'
 PY3_INSTALLER_OPTIONS            = "--destdir=#{CREW_DEST_DIR} --compile-bytecode 2 dist/*.whl"
 
-CREW_ESSENTIAL_FILES = `LD_TRACE_LOADED_OBJECTS=1 #{CREW_PREFIX}/bin/ruby`.scan(/\t([^ ]+)/).flatten +
-                       %w[libzstd.so.1 libstdc++.so.6]
-CREW_ESSENTIAL_FILES.uniq!
-
 CREW_LICENSE = <<~LICENSESTRING
   Copyright (C) 2013-2024 Chromebrew Authors
 
@@ -338,17 +334,17 @@ CREW_DOCOPT = <<~DOCOPT
   Usage:
     crew build [options] [-k|--keep] [-v|--verbose] <name> ...
     crew check [-V|--version] [-v|--verbose] <name> ...
-    crew const [options] [-v|--verbose] [<name> ...]
+    crew const [-v|--verbose] [<name> ...]
     crew deps [options] [--deep] [-t|--tree] [-b|--include-build-deps] [--exclude-buildessential] [-v|--verbose] <name> ...
     crew download [options] [-s|--source] [-v|--verbose] <name> ...
-    crew files [options] [-v|--verbose] <name> ...
+    crew files <name> ...
     crew help [<command>] [-v|--verbose] [<subcommand>]
     crew install [options] [-k|--keep] [-s|--source] [-S|--recursive-build] [-v|--verbose] <name> ...
     crew list [options] [-v|--verbose] (available|installed|compatible|incompatible)
     crew postinstall [options] [-v|--verbose] <name> ...
-    crew prop [-v|--verbose]
+    crew prop [<property>]
     crew reinstall [options] [-k|--keep] [-s|--source] [-S|--recursive-build] [-v|--verbose] <name> ...
-    crew remove [options] [-v|--verbose] <name> ...
+    crew remove [-v|--verbose] <name> ...
     crew search [options] [-v|--verbose] [<name> ...]
     crew sysinfo [-v|--verbose]
     crew test [-v|--verbose] [<name> ...]
@@ -374,4 +370,4 @@ CREW_DOCOPT = <<~DOCOPT
 DOCOPT
 
 # All available crew commands.
-CREW_COMMANDS = CREW_DOCOPT.scan(/crew ([^\s]+)/).flatten.join(',').gsub('.', '').split(',').sort
+CREW_COMMANDS = CREW_DOCOPT.scan(/crew ([^\s]+)/).flatten.sort.join(', ').gsub('.', '')

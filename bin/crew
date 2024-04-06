@@ -5,12 +5,14 @@ require 'json'
 require 'fileutils'
 require 'tmpdir'
 require_relative '../commands/const'
+require_relative '../commands/files'
 require_relative '../commands/help'
 require_relative '../commands/list'
+require_relative '../commands/prop'
+require_relative '../commands/remove'
 require_relative '../commands/sysinfo'
 require_relative '../lib/color'
 require_relative '../lib/const'
-require_relative '../lib/convert_size'
 require_relative '../lib/deb_utils'
 require_relative '../lib/docopt'
 require_relative '../lib/downloader'
@@ -259,48 +261,6 @@ def cache_build
   else
     puts 'CREW_CACHE_ENABLED is not set.'.orange unless CREW_CACHE_ENABLED
     puts 'CREW_CACHE_DIR is not writable.'.lightred unless File.writable?(CREW_CACHE_DIR)
-  end
-end
-
-def files(pkg_name)
-  local_filelist    = File.join(CREW_META_PATH, "#{pkg_name}.filelist")
-  manifest_filelist = File.join(CREW_LIB_PATH, "manifest/#{ARCH}/#{pkg_name[0]}/#{pkg_name}.filelist")
-
-  if File.exist?(local_filelist)
-    # search for local filelist first
-    filelist_path = local_filelist
-  elsif File.exist?(manifest_filelist)
-    # search for manifest directory if not installed
-    filelist_path = manifest_filelist
-  else
-    # package does not have any filelist available
-    warn "Package #{pkg_name} is not installed. :(".lightred
-    return false
-  end
-
-  filelist = File.readlines(filelist_path, chomp: true).sort
-  lines = filelist.size
-  size = 0
-
-  filelist.each do |filename|
-    # ignore symlinks to prevent duplicating calculation
-    size += File.size(filename) if File.file?(filename) && !File.symlink?(filename)
-  end
-
-  puts filelist, <<~EOT.lightgreen
-
-    Total found: #{lines}
-    Disk usage: #{human_size(size)}
-  EOT
-end
-
-def prop(silent = false)
-  props = Package.print_boolean_properties
-  if silent
-    return props
-  else
-    puts props
-    puts "For more information, type 'crew help prop <property>' where <property> is one of the above properties.".lightblue
   end
 end
 
@@ -1293,7 +1253,7 @@ def install
   # remove it just before the file copy
   if @pkg.in_upgrade
     puts 'Removing since upgrade or reinstall...'
-    remove @pkg.name
+    Command.remove(@pkg, @opt_verbose)
   end
 
   unless @pkg.is_fake?
@@ -1415,83 +1375,6 @@ def archive_package(crew_archive_dest)
       resolve_dependencies_and_install
     end
   end
-end
-
-def remove(pkg_name)
-  # make sure the package is actually installed
-  unless @device[:installed_packages].any? { |pkg| pkg[:name] == pkg_name } || File.file?(File.join(CREW_META_PATH, "#{pkg_name}.filelist"))
-    puts "Package #{pkg_name} isn't installed.".lightred
-    return
-  end
-
-  # Perform any operations required prior to package removal.
-  search pkg_name, true
-  @pkg.preremove unless @in_fixup
-
-  # Preserve CREW_ESSENTIAL_FILES and make sure they are real files
-  # and not symlinks, because preserving symlinked libraries does not
-  # prevent breakage.
-  CREW_ESSENTIAL_FILES.each do |file|
-    next unless File.symlink?("#{CREW_LIB_PREFIX}/#{file}")
-
-    canonicalized_file = `readlink -m #{CREW_LIB_PREFIX}/#{file}`.chomp
-    if File.file?(canonicalized_file) && canonicalized_file.include?(CREW_PREFIX)
-      puts "Replacing symlinked essential #{file} with hard link to #{canonicalized_file} to avoid breakage.".lightblue if @opt_verbose
-      FileUtils.ln(canonicalized_file, "#{CREW_LIB_PREFIX}/#{file}", force: true)
-    end
-  end
-
-  conflicts = determine_conflicts(Dir.pwd, pkg_name)
-
-  # if the filelist exists, remove the files and directories installed by the package
-  if File.file?(File.join(CREW_META_PATH, "#{pkg_name}.filelist"))
-    Dir.chdir CREW_CONFIG_PATH do
-      # remove all files installed by the package
-      File.foreach("meta/#{pkg_name}.filelist", chomp: true) do |line|
-        # Do not remove essential files which crew (and dependencies)
-        # rely on, especially during package upgrades or reinstalls.
-        # These essential files are enumerated in const.rb as
-        # CREW_ESSENTIAL_FILES.
-        if CREW_ESSENTIAL_FILES.include?(File.basename(line))
-          puts "Removing #{line} will break crew. It was #{'NOT'.lightred} deleted." if @opt_verbose
-        else
-          puts "Removing file #{line}".lightred if @opt_verbose
-          puts "filelist contains #{line}".lightred if @opt_verbose && !line.include?(CREW_PREFIX)
-          if line.start_with?(CREW_PREFIX)
-            if conflicts.include?(line)
-              puts "#{line} is in another package. It will not be removed during the removal of #{pkg_name}".orange
-            else
-              FileUtils.rm_rf line
-            end
-          end
-        end
-      end
-
-      # remove all directories installed by the package
-      File.foreach("meta/#{pkg_name}.directorylist", chomp: true) do |line|
-        puts "directorylist contains #{line}".lightred if @opt_verbose && !line.include?(CREW_PREFIX)
-        next unless Dir.exist?(line) && Dir.empty?(line) && line.include?(CREW_PREFIX)
-
-        puts "Removing directory #{line}".lightred if @opt_verbose
-        FileUtils.rmdir(line)
-      end
-
-      # remove the file and directory list
-      FileUtils.rm_f Dir["meta/#{pkg_name}.{file,directory}list"]
-    end
-  end
-
-  # remove from installed packages
-  puts "Removing package #{pkg_name}".lightred if @opt_verbose
-  @device[:installed_packages].delete_if { |elem| elem[:name] == pkg_name }
-
-  # update the device manifest
-  File.write "#{CREW_CONFIG_PATH}/device.json", JSON.pretty_generate(JSON.parse(@device.to_json))
-
-  search pkg_name, true
-  @pkg.remove unless @in_fixup
-
-  puts "#{pkg_name.capitalize} removed!".lightgreen
 end
 
 def print_deps_tree(args)
@@ -1731,29 +1614,18 @@ end
 
 def check_package(pkg_name)
   return unless Dir.exist? CREW_LOCAL_REPO_ROOT
+  return unless File.file? "#{CREW_LOCAL_REPO_ROOT}/packages/#{pkg_name}.rb"
   return copy_package(pkg_name) if @opt_force
 
   # Prompt to copy the local repo package to crew if the package is not found.
-  if !File.file?("#{CREW_PACKAGES_PATH}/#{pkg_name}.rb") && File.file?("#{CREW_LOCAL_REPO_ROOT}/packages/#{pkg_name}.rb")
+  unless File.file? "#{CREW_PACKAGES_PATH}/#{pkg_name}.rb"
     prompt_msg = "\nThe crew package #{pkg_name} does not exist."
     return copy_package(pkg_name, prompt_msg)
   end
 
   # Compare local repo package to the crew repo package and prompt to copy if necessary to prepare for the operation.
-  crew_package_updated = ''
-  Dir.chdir CREW_PACKAGES_PATH do
-    crew_package_updated = `git diff #{CREW_PACKAGES_PATH}/#{pkg_name}.rb`.chomp
-  end
-  local_package_updated = ''
-  Dir.chdir CREW_LOCAL_REPO_ROOT do
-    local_package_updated = `git diff #{CREW_LOCAL_REPO_ROOT}/packages/#{pkg_name}.rb`.chomp
-  end
-  if local_package_updated != '' && crew_package_updated == ''
-    prompt_msg = "\n#{CREW_LOCAL_REPO_ROOT}/packages/#{pkg_name}.rb has been updated but the crew package is unchanged."
-    return copy_package(pkg_name, prompt_msg)
-  end
-  if local_package_updated != '' && crew_package_updated != '' && local_package_updated != crew_package_updated
-    prompt_msg = "\n#{CREW_LOCAL_REPO_ROOT}/packages/#{pkg_name}.rb has been updated and does not match the crew updated package."
+  unless FileUtils.identical? "#{CREW_LOCAL_REPO_ROOT}/packages/#{pkg_name}.rb", "#{CREW_PACKAGES_PATH}/#{pkg_name}.rb"
+    prompt_msg = "\n#{CREW_LOCAL_REPO_ROOT}/packages/#{pkg_name}.rb does not match the crew package."
     return copy_package(pkg_name, prompt_msg)
   end
 end
@@ -1851,15 +1723,13 @@ end
 
 def files_command(args)
   args['<name>'].each do |name|
-    @pkg_name = name
-    search @pkg_name
-    print_current_package
-    files name
+    search name
+    Command.files(@pkg)
   end
 end
 
 def help_command(args)
-  Command.help(args['<command>'], args['<subcommand>'])
+  Command.help(args['<command>'])
 end
 
 def install_command(args)
@@ -1901,8 +1771,8 @@ def postinstall_command(args)
   end
 end
 
-def prop_command(_)
-  prop
+def prop_command(args)
+  Command.prop(args['<property>'])
 end
 
 def reinstall_command(args)
@@ -1925,7 +1795,10 @@ def reinstall_command(args)
 end
 
 def remove_command(args)
-  args['<name>'].each {|name| remove name }
+  args['<name>'].each do |name|
+    search name
+    Command.remove(@pkg, @opt_verbose)
+  end
 end
 
 def search_command(args)
