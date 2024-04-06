@@ -129,7 +129,7 @@ CREW_NOT_STRIP                       = ENV.fetch('CREW_NOT_STRIP', '0').eql?('1'
 CREW_NOT_SHRINK_ARCHIVE              = ENV.fetch('CREW_NOT_SHRINK_ARCHIVE', '0').eql?('1')              # or use no_shrink
 
 # Allow git constants to be set from environment variables (for testing)
-CREW_REPO   = ENV.fetch('CREW_REPO', 'https://github.com/ChromebrewPlus/ChromebrewPlus.git')
+CREW_REPO   = ENV.fetch('CREW_REPO', 'https://gitlab.com/yeesterPlusHacker/ChromebrewPlus.git')
 CREW_BRANCH = ENV.fetch('CREW_BRANCH', 'master')
 
 USER = `whoami`.chomp
