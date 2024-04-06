@@ -2,7 +2,7 @@
 
 #upgrade
  crew --version  && {
- CREW_REPO=https://gitlab.com/yeesterPlusHacker/ChromebrewPlus.git CREW_BRANCH=master crew update 
+ CREW_REPO=https://github.com/ChromebrewPlus/ChromebrewPlus.git CREW_BRANCH=master crew update 
  yes | crew upgrade
  echo "  ___ _                               _
  / (_)|\                              |\\
@@ -35,7 +35,7 @@ fi
 # Reject crostini.
 if [[ -d /opt/google/cros-containers && "${CREW_FORCE_INSTALL}" != '1' ]]; then
   echo_error "Crostini containers are not supported by Chromebrew :/"
-  echo_info "Run 'CREW_FORCE_INSTALL=1 \${what you ran}' to perform install anyway"
+  echo_info "Run 'CREW_FORCE_INSTALL=1 exec bash --init-file <(curl -Ls git.io/vddgY)' to perform install anyway"
   exit 1
 fi
 
@@ -43,7 +43,7 @@ fi
 if [ -f /etc/lsb-release ]; then
   if [[ ! "$(< /etc/lsb-release)" =~ CHROMEOS_RELEASE_TRACK=stable-channel$'\n' && "${CREW_FORCE_INSTALL}" != '1' ]]; then
     echo_error "The beta, dev, and canary channel are unsupported by Chromebrew."
-    echo_info "Run 'CREW_FORCE_INSTALL=1 \${what you did}' to perform install anyway."
+    echo_info "Run 'CREW_FORCE_INSTALL=1 exec bash --init-file <(curl -Ls git.io/vddgY)' to perform install anyway."
     exit 1
   fi
   export "$(grep CHROMEOS_RELEASE_CHROME_MILESTONE /etc/lsb-release)"
@@ -86,7 +86,7 @@ if [ "$(stat -c '%u' "${CREW_PREFIX}")" != "$(id -u)" ]; then
 fi
 
 # Default chromebrew repo values.
-: "${OWNER:=YeesterPlusHacker}"
+: "${OWNER:=ChromebrewPlus}"
 : "${REPO:=ChromebrewPlus}"
 : "${BRANCH:=master}"
 
@@ -119,7 +119,7 @@ fi
 # instruction, as it was first introduced in Bulldozer and later dropped in Zen.
 if grep -s "fma4" /proc/cpuinfo ; then
   echo_info "Notice: You are running an AMD StoneyRidge device; due to some bugs some packages may fail with a segmentation fault and need to be rebuilt."
-  echo_info "If this happens, please report them to: https://gitlab.com/ChromebrewPlus/ChromebrewPlus/issues"
+  echo_info "If this happens, please report them to: https://github.com/ChromebrewPlus/ChromebrewPlus/issues"
   echo_info "If the install fails, try running 'CREW_AMD_INSTALL=1'+ the command you used to run this"
   if [ "${CREW_AMD_INSTALL}" == "1" ]; then
     # Otherwise one may get segfaults during install on stoneyridge devices.
@@ -171,7 +171,7 @@ crew_folders="bin cache doc docbook include lib/crew/packages lib$LIB_SUFFIX lib
 find "${CREW_LIB_PATH}" -mindepth 1 -delete
 
 # Download the chromebrew repository.
-curl -L --progress-bar https://gitlab.com/"${OWNER}"/"${REPO}"/tarball/"${BRANCH}" | tar -xz --strip-components=1 -C "${CREW_LIB_PATH}"
+curl -L --progress-bar https://github.com/"${OWNER}"/"${REPO}"/tarball/"${BRANCH}" | tar -xz --strip-components=1 -C "${CREW_LIB_PATH}"
 
 BOOTSTRAP_PACKAGES='zstd crew_mvdir ruby git ca_certificates libyaml openssl'
 
@@ -330,7 +330,7 @@ else
 
   # Setup the folder with git information.
   git init
-  git remote add origin "https://gitlab.com/${OWNER}/${REPO}"
+  git remote add origin "https://github.com/${OWNER}/${REPO}"
 
   # Checkout, overwriting local files.
   git fetch --all
@@ -345,49 +345,28 @@ else
 fi
 echo -e "${RESET}"
 
-echo "                                                             
-                                    ++                                    
-                            ++++++++++++++++++++                          
-                        ++++++++++++++++++++++++++++                       
-                      +++++++++++++++++++++++++++++++++                    
-                  ++++++++++++++++++++++++++++++++++++++                  
-                  **++++++++++++++++++++++++++++++++++++++                 
-                ***+++++++++++***++++++++*****++++++++++++                
-                *****++++++********+++++**********+++++++++++              
-              *******++++**************************+++++++++++             
-              ***************************************++++++++++            
-            *****************************************++++++++++           
-            *******************************************++++++++           
-            *********************************************++++++++          
-          **************%%%%#*****************%%%%%#****+++++++++         
-        **************#%%%%%%%***************%%%%%%%#****++++++++++       
-      ****************#%%%%%%%***************%%%%#**+========++++++++     
-    +******************#%%%%#*****************#%%.           .=++++++++   
-  *******************************+=----=++****+:..:::.      ...=+++++++   
-  *******************************=:::::::::=***=. .-----:.  .-. .....:=++  
-  *******************************+-:::::::-=***=  .-------:---. :+++++.=++ 
-*********************************+-::::::+****=  .------.  :-. .---==.-+++
-**********************************+-:::-+*****=  .-------::--. .:::::.:::-
-  **********************************-:=*******=  .-----------. .:::::.:=  
-    *********************************+********=  .-----------. .::::.     
-        ***************************************=  .-----------.  ...       
-        ***************************************=  .-----------. .:::       
-        **************************************=  .-----------. .:::       
-        +*************************************=  .-----------. .:::       
-        **************************************=. ............  .::        
-          **************************************=.             .:::        
-          ***********************************************=::::::::         
-          *********************************************=::::::::          
-          ********+=:=+******************************+-::::::::           
-            *****+-:::::-=+**********************+=-:::::::::             
-              **+=:::::::::::--+++++++++**++==---::::::::::::              
-                -::::::::::::::::::::::::::::::::::::::::::                
-                  ::::::::::::::::::::::::::::::::::::::                  
-                      ::::::::::::::::::::::::::::::::                     
-                      ::::::::::::::::::::::::::::::::                     
-                      ::::::::::::::::::::::::::::::::                     
-                      ::::::::::::::    ::::::::::::::                     
-                        --::::::::                                        "
+echo "                       . .
+                   ..,:;;;::'..
+                 .':lllllllool,.
+                ...cl;..... ,::;'.
+               .'oc...;::::..0KKo.
+               .'od: .:::::, lolc.
+             .'lNMMMO ;ooc.,XMMWx;:;.
+            .dMMMMMMXkMMMMxoMMMMMMMMO.
+            .:O0NMMMMMMMMMM0MMMMMN0Oc.
+              .:xdloddddddoXMMMk:x:....
+              .xMNOKX0OOOOxcodlcXMN0O0XKc.
+              .OMXOKXOOOOOk;ol:OXMK...;N0.
+              'XMKOXXOOOOOk:docOKMW,  .kW;
+             .cMMKOXXOOOOOOOOOOO0MM;  .lMc.
+             .cMM00XKOOOOkkkkkkOOWMl. .cMo.
+             .lMWO0XKOOOkkkkkkkkONMo.  ;Wk.
+             .oMNO0X0OOkkkkkkkkkOXMd..,oW0'
+             .xMNO0X0OOkkkkkkkkkkXMWKXKOx;.
+             .0MXOOOOOOkkkkkkkkkOKM0..
+             'NMWNXXKK000000KKXNNMMX.
+             .;okk0XNWWMMMMWWNKOkdc'.
+                .....'cc:cc:''..."
 echo "  ___ _                               _
  / (_)|\                              |\\
 |     ||__    ,_    __  _  _  _    __ |/_  ,_    __  _   _   _      |
