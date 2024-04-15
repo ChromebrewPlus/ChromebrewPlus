@@ -2750,6 +2750,11 @@ url: https://webdesigner.withgoogle.com/
 activity: high
 ---
 kind: url
+name: gopeed
+url: https://github.com/GopeedLab/gopeed/releases
+activity: medium
+---
+kind: url
 name: gox
 url: https://github.com/mitchellh/gox/releases
 activity: low
@@ -2783,6 +2788,11 @@ kind: url
 name: gpm
 url: https://github.com/telmich/gpm/releases
 activity: none
+---
+kind: url
+name: gpt4all
+url: https://github.com/nomic-ai/gpt4all/releases
+activity: medium
 ---
 kind: url
 name: gptfdisk
@@ -4528,7 +4538,7 @@ activity: none
 kind: url
 name: libnsl
 url: https://github.com/thkukuk/libnsl/releases
-activity: none
+activity: low
 ---
 kind: url
 name: libnsutils
@@ -8939,6 +8949,11 @@ kind: url
 name: vulkan_tools
 url: https://github.com/KhronosGroup/Vulkan-Tools/tags
 activity: high
+---
+kind: url
+name: vulkansdk
+url: https://vulkan.lunarg.com/sdk/home
+activity: medium
 ---
 kind: url
 name: vuze
