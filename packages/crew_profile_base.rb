@@ -3,11 +3,11 @@ require 'package'
 class Crew_profile_base < Package
   description 'Crew-profile-base sets up Chromebrew\'s environment capabilities.'
   homepage 'https://github.com/chromebrew/crew-profile-base'
-  version '0.0.17'
+  version '0.0.20'
   license 'GPL-3+'
   compatibility 'all'
   source_url "https://github.com/chromebrew/crew-profile-base/archive/refs/tags/#{version}.tar.gz"
-  source_sha256 '752266207e79fca8b995012310ddd9afe5e253e07e6e91d7b682f4b8e3e64ccd'
+  source_sha256 '37f115f98259e2925f8737db13e9483df3fb0267f35fc27843ee274c5ab822bf'
 
   no_compile_needed
   print_source_bashrc
@@ -16,9 +16,6 @@ class Crew_profile_base < Package
     FileUtils.mkdir_p "#{CREW_DEST_PREFIX}/etc/"
     FileUtils.mkdir_p "#{CREW_DEST_PREFIX}/etc/env.d"
     FileUtils.mkdir_p "#{CREW_DEST_PREFIX}/etc/profile.d"
-
-    # dbus file moved to dbus package, so remove it.
-    FileUtils.rm_f './src/env.d/04-dbus'
 
     # Don't overwrite custom changes
     %w[01-locale 02-editor 03-pager 99-custom].each do |custom_files|
