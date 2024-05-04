@@ -2790,6 +2790,11 @@ url: https://github.com/telmich/gpm/releases
 activity: none
 ---
 kind: url
+name: gpp
+url: https://github.com/logological/gpp/releases
+activity: low
+---
+kind: url
 name: gpt4all
 url: https://github.com/nomic-ai/gpt4all/releases
 activity: medium
@@ -3926,6 +3931,11 @@ url: http://0pointer.de/lennart/projects/libdaemon/
 activity: none
 ---
 kind: url
+name: libdatrie
+url: https://github.com/tlwg/libdatrie/releases
+activity: none
+---
+kind: url
 name: libdazzle
 url: https://gitlab.gnome.org/GNOME/libdazzle/-/tags
 activity: medium
@@ -4916,6 +4926,11 @@ url: http://downloads.sourceforge.net/project/karthas/release/
 activity: none
 ---
 kind: url
+name: libthai
+url: https://github.com/tlwg/libthai/releases
+activity: none
+---
+kind: url
 name: libtheora
 url: http://downloads.xiph.org/releases/theora
 activity: none
@@ -5501,6 +5516,11 @@ url: https://github.com/lz4/lz4/releases
 activity: medium
 ---
 kind: url
+name: lzfse
+url: https://github.com/lzfse/lzfse/releases
+activity: none
+---
+kind: url
 name: lzip
 url: http://download.savannah.gnu.org/releases/lzip
 activity: low
@@ -5669,6 +5689,11 @@ kind: url
 name: mg
 url: https://github.com/troglobit/mg/releases/
 activity: medium
+---
+kind: url
+name: mhash
+url: https://sourceforge.net/projects/mhash/files/mhash/
+activity: none
 ---
 kind: url
 name: micro
@@ -6906,6 +6931,11 @@ url: https://github.com/nbs-system/php-malware-finder
 activity: low
 ---
 kind: url
+name: phpbrew
+url: https://github.com/phpbrew/phpbrew/releases
+activity: low
+---
+kind: url
 name: phpsysinfo
 url: https://sourceforge.net/projects/phpsysinfo/files/phpsysinfo/
 activity: low
@@ -7989,6 +8019,11 @@ kind: url
 name: sl
 url: https://github.com/mtoyoda/sl/releases
 activity: none
+---
+kind: url
+name: slack_cli
+url: https://api.slack.com/automation/cli/install-mac-linux
+activity: low
 ---
 kind: url
 name: slang

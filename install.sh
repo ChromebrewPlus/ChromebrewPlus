@@ -182,6 +182,14 @@ BOOTSTRAP_PACKAGES='zstd crew_mvdir ruby git ca_certificates libyaml openssl'
 [[ "${ARCH}" == "i686" ]] && BOOTSTRAP_PACKAGES+=' zlibpkg gcc_lib'
 
 if [[ -n "${CHROMEOS_RELEASE_CHROME_MILESTONE}" ]]; then
+  # shellcheck disable=SC2231
+  for i in /lib$LIB_SUFFIX/libc.so*
+  do
+    sudo cp "$i" "$CREW_PREFIX/lib$LIB_SUFFIX/"
+    libcname=$(basename "$i")
+    sudo chown chronos "$CREW_PREFIX/lib$LIB_SUFFIX/${libcname}"
+    sudo chmod 644 "$CREW_PREFIX/lib$LIB_SUFFIX/${libcname}"
+  done
   if (( "${CHROMEOS_RELEASE_CHROME_MILESTONE}" > "112" )); then
     # Recent Arm systems have a cut down system.
     [[ "${ARCH}" == "armv7l" ]] && BOOTSTRAP_PACKAGES+=' bzip2 ncurses readline pcre2 gcc_lib'
@@ -338,7 +346,7 @@ else
   git config --global init.defaultBranch main
 
   # Setup the folder with git information.
-  git init
+  git init --ref-format=reftable
   git remote add origin "https://github.com/${OWNER}/${REPO}"
 
   # Checkout, overwriting local files.
